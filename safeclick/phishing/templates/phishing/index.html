@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeClick</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        body {
+            background-image: url('{% static "images.jpeg" %}');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        .container {
+            background-color: #e0e0e0;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 100px auto;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .safe-message {
+            color: green;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .warning-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .hidden-info {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .hidden-info p {
+            color: red;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .check-btn {
+            background-color: #007BFF;
+            color: #fff;
+        }
+
+        .check-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .more-btn {
+            background-color: #6c757d;
+            color: #fff;
+            cursor: not-allowed;
+        }
+
+        .more-btn.enabled {
+            background-color: #007BFF;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SafeClick</h1>
+        <p>Your first line of defense against phishing threats.</p>
+    
+        <form id="url-form" onsubmit="checkUrl(event)">
+            <label for="url-input">Enter the URL:</label>
+            <input type="text" id="url-input" name="url" placeholder="https://example.com" required>
+            <div id="message"></div>
+            <button type="submit" class="check-btn">Check</button>
+            <button type="button" class="more-btn" id="more-btn" disabled>More Info</button>
+        </form>
+    
+        <div id="hidden-info" class="hidden-info">
+            <p id="warning-message"></p>
+        </div>
+    </div>
+
+    <script>
+        function checkUrl(event) {
+            event.preventDefault();
+
+            const urlInput = document.getElementById('url-input').value;
+            const messageDiv = document.getElementById('message');
+            const moreBtn = document.getElementById('more-btn');
+            const hiddenInfo = document.getElementById('hidden-info');
+            const warningMessage = document.getElementById('warning-message');
+
+            // Reset the UI
+            messageDiv.innerHTML = "";
+            hiddenInfo.style.display = "none";
+            moreBtn.disabled = true;
+            moreBtn.classList.remove('enabled');
+
+            // Make an API call to the backend
+            fetch(`/classify/?url=${encodeURIComponent(urlInput)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.is_safe) {
+                        // If the URL is safe
+                        messageDiv.innerHTML = `<p class="safe-message">✔️ This URL is safe and legitimate.</p>`;
+                    } else {
+                        // If the URL is unsafe
+                        messageDiv.innerHTML = `<p class="warning-message">❌ Warning: Unsafe URL detected. We recommend you do not proceed!</p>`;
+                        warningMessage.textContent = data.warning; // Set warning message
+                        moreBtn.disabled = false;
+                        moreBtn.classList.add('enabled');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    messageDiv.innerHTML = '<p class="warning-message">⚠️ Error: Unable to classify the URL. Please try again later.</p>';
+                });
+        }
+
+        function toggleInfo() {
+            const hiddenInfo = document.getElementById('hidden-info');
+            if (hiddenInfo.style.display === "none" || hiddenInfo.style.display === "") {
+                hiddenInfo.style.display = "block";
+            } else {
+                hiddenInfo.style.display = "none";
+            }
+        }
+
+        // Add event listener for "More Info" button
+        document.getElementById('more-btn').addEventListener('click', toggleInfo);
+    </script>
+</body>
+</html>
