@@ -80,7 +80,7 @@ python manage.py runserver
 ## 📊 Results
 
 → **Superior Accuracy**: **98% accuracy** using Gradient Boosting and Random Forest. 
-→ **Optimized Processing**: Reduced feature complexity from **49 to 37 variables** for faster analysis  
+→ **Optimized Processing**: Reduced feature complexity from **49 to 37 variables** for faster analysis.  
 → **User-Centric Design**: Combines high performance with **clear, understandable explanations**
 
 
